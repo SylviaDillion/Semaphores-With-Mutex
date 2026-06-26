@@ -28,6 +28,7 @@ int random_number_in_range(int min, int max);
 int main() {
     sem_init(&semaphore, 0, 1); // Initialize semaphore
     srand((unsigned int)time(NULL));
+    setbuf(stdout, NULL);
 
     Airplane plane[PLANE_NUMBER];
     for (int i = 0; i < PLANE_NUMBER; i++) {
@@ -42,9 +43,9 @@ int main() {
         pthread_join(plane[i].take_off, NULL);
     }
 
-    printf("Airplanes finish preparation simultaneously,"
+    printf("\nAirplanes finish preparation simultaneously,"
            "they will all simultaneously send a request to"
-           "the control tower to use runway\n");
+           "the control tower to use runway\n\n");
 
     for (int i = 0; i < PLANE_NUMBER; i++) {
         pthread_create(&plane[i].take_off, NULL, &runway, &plane[i]);
