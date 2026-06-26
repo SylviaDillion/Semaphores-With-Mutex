@@ -13,7 +13,6 @@
 #define PLANE_NAME_LENGTH 50
 
 sem_t semaphore;
-pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 typedef struct {
     char name[PLANE_NAME_LENGTH];
@@ -58,7 +57,6 @@ int main() {
     }
 
     sem_destroy(&semaphore);
-    pthread_mutex_destroy(&print_mutex);
     return 0;
 }
 
@@ -71,20 +69,18 @@ void initialize_airplane(Airplane * plane, int id) {
 
 void * preparation(void * args) {
     Airplane * p = (Airplane *)args;
-    pthread_mutex_lock(&print_mutex);
-    printf("%s finishes safety inspection.\n", p->name);
-    pthread_mutex_unlock(&print_mutex);
+
+    printf("%s starts safety inspection.\n", p->name);
     sleep(SAFETY_INSPECTION_DURATION);
+    printf("%s finishes safety inspection.\n", p->name);
 
-    pthread_mutex_lock(&print_mutex);
-    printf("%s finishes passengers boarding.\n", p->name);
-    pthread_mutex_unlock(&print_mutex);
+    printf("%s starts passengers boarding.\n", p->name);
     sleep(PASSENGER_BOARDING_DURATION);
+    printf("%s finishes passengers boarding.\n", p->name);
 
-    pthread_mutex_lock(&print_mutex);
-    printf("%s finishes taxi-out.\n", p->name);
-    pthread_mutex_unlock(&print_mutex);
+    printf("%s starts taxi-out.\n", p->name);
     sleep(TAXI_OUT_DURATION);
+    printf("%s finishes taxi-out.\n", p->name);
 
     return NULL;
 }
