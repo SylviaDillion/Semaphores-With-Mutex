@@ -6,6 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 
+// Constant declaration.
 #define PLANE_NUMBER 3
 #define SAFETY_INSPECTION_DURATION 20
 #define PASSENGER_BOARDING_DURATION 25
@@ -30,11 +31,13 @@ int main() {
     srand((unsigned int)time(NULL));
     setbuf(stdout, NULL);
 
+    // Initialize planes.
     Airplane plane[PLANE_NUMBER];
     for (int i = 0; i < PLANE_NUMBER; i++) {
         initialize_airplane(&plane[i], i + 1);
     }
 
+    // Preparation stage.
     for (int i = 0; i < PLANE_NUMBER; i++) {
         pthread_create(&plane[i].take_off, NULL, &preparation, &plane[i]);
     }
@@ -47,6 +50,7 @@ int main() {
            "they will all simultaneously send a request to"
            "the control tower to use runway\n\n");
 
+    // Planes are taking off.
     for (int i = 0; i < PLANE_NUMBER; i++) {
         pthread_create(&plane[i].take_off, NULL, &runway, &plane[i]);
     }
@@ -55,15 +59,33 @@ int main() {
         pthread_join(plane[i].take_off, NULL);
     }
 
+    // Free resources associated with semaphore.
     sem_destroy(&semaphore);
     return 0;
 }
 
+/**
+ * @brief Initilize an `Airplane` instance.
+ *
+ * Each `taking_off_time` is generated randomly between [5, 10].
+ *
+ * @param plane the `Airplane` to be initialized.
+ * @param id a unique ID used to identify the plane.
+ */
 void initialize_airplane(Airplane * plane, int id) {
     sprintf(plane->name, "airplane%d", id);
     plane->taking_off_time = random_number_in_range(5, 10);
 }
 
+/**
+ * @brief Handle preparation stage of an `Airplane`, including three phrases:
+ *
+ * - Safety inspection
+ * - Passenger boarding
+ * - Taxi-out
+ *
+ * @param args can be converted into `Airplane` type.
+ */
 void * preparation(void * args) {
     Airplane * p = (Airplane *)args;
 
@@ -82,6 +104,11 @@ void * preparation(void * args) {
     return NULL;
 }
 
+/**
+ * @brief Plane requests and uses the runway to take off.
+ *
+ * @param args can be converted into `Airplane` type.
+ */
 void * runway(void * args) {
     sem_wait(&semaphore);
     Airplane * p = (Airplane *)args;
@@ -94,6 +121,13 @@ void * runway(void * args) {
     return NULL;
 }
 
+/**
+ * @brief Generate a random number between `min` and `max` (inclusive).
+ *
+ * @param min lower boundary
+ * @param max upper boundary
+ * @return a random number between `min` and `max` (inclusive).
+ */
 int random_number_in_range(int min, int max) {
     return min + rand() % (max - min + 1);
 }
