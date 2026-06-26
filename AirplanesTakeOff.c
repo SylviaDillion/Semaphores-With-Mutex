@@ -16,6 +16,7 @@ sem_t semaphore;
 
 typedef struct {
     char name[PLANE_NAME_LENGTH];
+    int taking_off_time;
     pthread_t take_off;
 } Airplane;
 
@@ -59,6 +60,7 @@ int main() {
 
 void initialize_airplane(Airplane * plane, int id) {
     sprintf(plane->name, "airplane%d", id);
+    plane->taking_off_time = random_number_in_range(5, 10);
 }
 
 void * preparation(void * args) {
@@ -81,17 +83,13 @@ void * preparation(void * args) {
 
 void * runway(void * args) {
     sem_wait(&semaphore);
-    printf("-----------------------------------\n");
     Airplane * p = (Airplane *)args;
+
     printf("%s are taking off.\n", p->name);
+    sleep(p->taking_off_time);
+    printf("%s finished. Time taken %d mins\n", p->name, p->taking_off_time);
 
-    int random_num = random_number_in_range(5, 10);
-    sleep(random_num);
-
-    printf("%s finished. Time taken %d mins\n", p->name, random_num);
-    printf("-----------------------------------\n");
     sem_post(&semaphore);
-
     return NULL;
 }
 
