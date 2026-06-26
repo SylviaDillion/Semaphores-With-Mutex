@@ -16,9 +16,6 @@ sem_t semaphore;
 
 typedef struct {
     char name[PLANE_NAME_LENGTH];
-    bool safty_inspection;
-    bool passengers_boarding;
-    bool taxi_out; // The taxiing process to the runway
     pthread_t take_off;
 } Airplane;
 
@@ -62,9 +59,6 @@ int main() {
 
 void initialize_airplane(Airplane * plane, int id) {
     sprintf(plane->name, "airplane%d", id);
-    plane->safty_inspection = false;
-    plane->passengers_boarding = false;
-    plane->taxi_out = false;
 }
 
 void * preparation(void * args) {
