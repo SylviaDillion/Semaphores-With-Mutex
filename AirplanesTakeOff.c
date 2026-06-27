@@ -129,9 +129,9 @@ void * request_and_takeoff(void * args) {
     printf("Control tower grants takeoff permission to %s\n", plane->name);
 
     // The plane is taking off.
-    printf("%s are taking off.\n", plane->name);
+    printf("%s is taking off.\n", plane->name);
     sleep(plane->taking_off_time);
-    printf("%s finished. Time taken %d mins\n", plane->name,
+    printf("%s finished takeoff. Time taken %d mins\n", plane->name,
            plane->taking_off_time);
 
     // Takeoff complete, and release the runway resource.
