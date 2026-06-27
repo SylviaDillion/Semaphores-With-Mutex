@@ -111,18 +111,32 @@ void * preparation(void * args) {
  */
 void * request_and_takeoff(void * args) {
     Airplane * plane = (Airplane *)args;
+
+    // The plane sends a takeoff request to the control tower after
+    // finishing preparation.
+    // Since all planes have the same preparation time, this step reflects
+    // planes sending requests simultaneously.
     printf("%s sends a request to the control tower for takeoff.\n",
            plane->name);
 
+    // Wait for the runway resource. The semaphore acts like a mutex lock here.
+    // Only the plane that acquires hte semaphore can proceed, while the others
+    // are blocked here util the current plane release it.
     sem_wait(&runway_semaphore);
 
+    // Successfully acquiring the semaphore is treated as the tower granting
+    // takeoff permission to this plane.
     printf("Control tower grants takeoff permission to %s\n", plane->name);
+
+    // The plane is taking off.
     printf("%s are taking off.\n", plane->name);
     sleep(plane->taking_off_time);
     printf("%s finished. Time taken %d mins\n", plane->name,
            plane->taking_off_time);
 
+    // Takeoff complete, and release the runway resource.
     sem_post(&runway_semaphore);
+
     return NULL;
 }
 
