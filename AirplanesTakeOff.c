@@ -110,9 +110,12 @@ void * preparation(void * args) {
  * @param args can be converted into `Airplane` type.
  */
 void * runway(void * args) {
-    sem_wait(&semaphore);
     Airplane * p = (Airplane *)args;
+    printf("%s sends a request to the control tower for takeoff.\n", p->name);
 
+    sem_wait(&semaphore);
+
+    printf("Contrl tower grants takeoff permission to %s\n", p->name);
     printf("%s are taking off.\n", p->name);
     sleep(p->taking_off_time);
     printf("%s finished. Time taken %d mins\n", p->name, p->taking_off_time);
