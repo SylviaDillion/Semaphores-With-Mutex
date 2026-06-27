@@ -137,6 +137,9 @@ void * request_and_takeoff(void * args) {
     // Takeoff complete, and release the runway resource.
     sem_post(&runway_semaphore);
 
+    // Update the runway status.
+    printf("Runway is available again\n");
+
     return NULL;
 }
 
