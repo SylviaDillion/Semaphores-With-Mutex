@@ -46,9 +46,9 @@ int main() {
         pthread_join(plane[i].thread, NULL);
     }
 
-    printf("\nAirplanes finish preparation simultaneously,"
-           "they will all simultaneously send a request to"
-           "the control tower to use runway\n\n");
+    printf(
+        "\nAirplanes finished preparation simultaneously, they will all "
+        "simultaneously send a request to the control tower to use runway\n\n");
 
     // Planes are taking off.
     for (int i = 0; i < PLANE_NUMBER; i++) {
@@ -73,7 +73,7 @@ int main() {
  * @param id a unique ID used to identify the plane.
  */
 void initialize_airplane(Airplane * plane, int id) {
-    sprintf(plane->name, "airplane%d", id);
+    sprintf(plane->name, "Airplane%d", id);
     plane->taking_off_time = random_number_in_range(5, 10);
 }
 
