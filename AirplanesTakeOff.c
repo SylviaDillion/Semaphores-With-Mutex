@@ -13,21 +13,21 @@
 #define TAXI_OUT_DURATION 20
 #define PLANE_NAME_LENGTH 50
 
-sem_t semaphore;
+sem_t runway_semaphore;
 
 typedef struct {
     char name[PLANE_NAME_LENGTH];
     int taking_off_time;
-    pthread_t take_off;
+    pthread_t thread;
 } Airplane;
 
 void initialize_airplane(Airplane * plane, int id);
 void * preparation(void * args);
-void * runway(void * args);
+void * request_and_takeoff(void * args);
 int random_number_in_range(int min, int max);
 
 int main() {
-    sem_init(&semaphore, 0, 1); // Initialize semaphore
+    sem_init(&runway_semaphore, 0, 1); // Initialize semaphore
     srand((unsigned int)time(NULL));
     setbuf(stdout, NULL);
 
@@ -39,11 +39,11 @@ int main() {
 
     // Preparation stage.
     for (int i = 0; i < PLANE_NUMBER; i++) {
-        pthread_create(&plane[i].take_off, NULL, &preparation, &plane[i]);
+        pthread_create(&plane[i].thread, NULL, &preparation, &plane[i]);
     }
 
     for (int i = 0; i < PLANE_NUMBER; i++) {
-        pthread_join(plane[i].take_off, NULL);
+        pthread_join(plane[i].thread, NULL);
     }
 
     printf("\nAirplanes finish preparation simultaneously,"
@@ -52,15 +52,15 @@ int main() {
 
     // Planes are taking off.
     for (int i = 0; i < PLANE_NUMBER; i++) {
-        pthread_create(&plane[i].take_off, NULL, &runway, &plane[i]);
+        pthread_create(&plane[i].thread, NULL, &request_and_takeoff, &plane[i]);
     }
 
     for (int i = 0; i < PLANE_NUMBER; i++) {
-        pthread_join(plane[i].take_off, NULL);
+        pthread_join(plane[i].thread, NULL);
     }
 
     // Free resources associated with semaphore.
-    sem_destroy(&semaphore);
+    sem_destroy(&runway_semaphore);
     return 0;
 }
 
@@ -87,19 +87,19 @@ void initialize_airplane(Airplane * plane, int id) {
  * @param args can be converted into `Airplane` type.
  */
 void * preparation(void * args) {
-    Airplane * p = (Airplane *)args;
+    Airplane * plane = (Airplane *)args;
 
-    printf("%s starts safety inspection.\n", p->name);
+    printf("%s starts safety inspection.\n", plane->name);
     sleep(SAFETY_INSPECTION_DURATION);
-    printf("%s finishes safety inspection.\n", p->name);
+    printf("%s finishes safety inspection.\n", plane->name);
 
-    printf("%s starts passengers boarding.\n", p->name);
+    printf("%s starts passengers boarding.\n", plane->name);
     sleep(PASSENGER_BOARDING_DURATION);
-    printf("%s finishes passengers boarding.\n", p->name);
+    printf("%s finishes passengers boarding.\n", plane->name);
 
-    printf("%s starts taxi-out.\n", p->name);
+    printf("%s starts taxi-out.\n", plane->name);
     sleep(TAXI_OUT_DURATION);
-    printf("%s finishes taxi-out.\n", p->name);
+    printf("%s finishes taxi-out.\n", plane->name);
 
     return NULL;
 }
@@ -109,18 +109,20 @@ void * preparation(void * args) {
  *
  * @param args can be converted into `Airplane` type.
  */
-void * runway(void * args) {
-    Airplane * p = (Airplane *)args;
-    printf("%s sends a request to the control tower for takeoff.\n", p->name);
+void * request_and_takeoff(void * args) {
+    Airplane * plane = (Airplane *)args;
+    printf("%s sends a request to the control tower for takeoff.\n",
+           plane->name);
 
-    sem_wait(&semaphore);
+    sem_wait(&runway_semaphore);
 
-    printf("Control tower grants takeoff permission to %s\n", p->name);
-    printf("%s are taking off.\n", p->name);
-    sleep(p->taking_off_time);
-    printf("%s finished. Time taken %d mins\n", p->name, p->taking_off_time);
+    printf("Control tower grants takeoff permission to %s\n", plane->name);
+    printf("%s are taking off.\n", plane->name);
+    sleep(plane->taking_off_time);
+    printf("%s finished. Time taken %d mins\n", plane->name,
+           plane->taking_off_time);
 
-    sem_post(&semaphore);
+    sem_post(&runway_semaphore);
     return NULL;
 }
 
