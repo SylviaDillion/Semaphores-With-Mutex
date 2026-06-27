@@ -115,7 +115,7 @@ void * runway(void * args) {
 
     sem_wait(&semaphore);
 
-    printf("Contrl tower grants takeoff permission to %s\n", p->name);
+    printf("Control tower grants takeoff permission to %s\n", p->name);
     printf("%s are taking off.\n", p->name);
     sleep(p->taking_off_time);
     printf("%s finished. Time taken %d mins\n", p->name, p->taking_off_time);
